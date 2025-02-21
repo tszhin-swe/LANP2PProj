@@ -72,6 +72,10 @@ class TestPeerDiscovery(unittest.TestCase):
         listener_thread.join(timeout=5)
         broadcaster_thread.join(timeout=5)
 
+    def test_timeout_peer(self):
+        # TODO: Implement test_timeout_peer
+        return
+
 
 if __name__ == "__main__":
     unittest.main()

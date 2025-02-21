@@ -1,19 +1,27 @@
 import socket
 import os
 from common.debug_print import debug_print
-
+from common.control_block import ControlBlock
 
 FILE_PORT = 60000  # Port for file transfer
 BUFFER_SIZE = 1024  # Chunk size for file transfer
 
 
-def handle_file_request(client_socket: socket.socket, file_name: str):
-    # Check if the file exists
-    if os.path.exists(file_name):
+def verify_file_checksum(file_name: str):
+    # Calculate the checksum of the file
+    # TODO: Implement checksum calculation
+    return
+
+
+def send_file(cb: ControlBlock, client_socket: socket.socket, file_name: str):
+    print(f"file exist{os.path.exists(file_name)}")
+    # Check if the file exists and can be sent
+    file_name_path = cb.get_file_path(file_name)
+    if os.path.exists(file_name_path):
         client_socket.send(b"FILE_FOUND")  # Send file found message
 
         # Send the file in chunks
-        with open(file_name, "rb") as file:
+        with open(file_name_path, "rb") as file:
             while chunk := file.read(BUFFER_SIZE):
                 client_socket.send(chunk)
         debug_print(f"Sent {file_name} to {client_socket.getpeername()}")
@@ -23,7 +31,7 @@ def handle_file_request(client_socket: socket.socket, file_name: str):
     client_socket.close()
 
 
-def start_file_server():
+def start_file_server(cb: ControlBlock):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(("", FILE_PORT))
     server_socket.listen(5)  # Allow up to 5 connections
@@ -37,14 +45,13 @@ def start_file_server():
         # Receive the file name from the client
         file_name = client_socket.recv(BUFFER_SIZE).decode()
 
-        # Handle file request
-        handle_file_request(client_socket, file_name)
+        send_file(cb, client_socket, file_name)
 
 
 BUFFER_SIZE = 1024  # Chunk size for file transfer
 
 
-def request_file_from_peer(peer_ip: str, file_name: str):
+def receive_file_from_peer(peer_ip: str, file_name: str):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((peer_ip, FILE_PORT))
 

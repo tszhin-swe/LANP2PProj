@@ -21,3 +21,9 @@ class ControlBlock:
             if file.split("/")[-1] == filename:
                 return True
         return False
+
+    def get_file_path(self, filename: str) -> str:
+        for file in self.file_list:
+            if file.split("/")[-1] == filename:
+                return file
+        return ""
