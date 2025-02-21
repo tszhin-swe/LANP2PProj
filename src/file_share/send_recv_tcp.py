@@ -1,6 +1,6 @@
 import socket
 import os
-from common.debug_print import printfunc
+from common.debug_print import debug_print
 
 
 FILE_PORT = 60000  # Port for file transfer
@@ -16,7 +16,7 @@ def handle_file_request(client_socket: socket.socket, file_name: str):
         with open(file_name, "rb") as file:
             while chunk := file.read(BUFFER_SIZE):
                 client_socket.send(chunk)
-        printfunc(f"Sent {file_name} to {client_socket.getpeername()}")
+        debug_print(f"Sent {file_name} to {client_socket.getpeername()}")
     else:
         client_socket.send(b"FILE_NOT_FOUND")  # Send file not found message
 
@@ -28,11 +28,11 @@ def start_file_server():
     server_socket.bind(("", FILE_PORT))
     server_socket.listen(5)  # Allow up to 5 connections
 
-    printfunc("File server listening on port", FILE_PORT)
+    debug_print("File server listening on port", FILE_PORT)
 
     while True:
         client_socket, client_address = server_socket.accept()
-        printfunc(f"Connection established with {client_address}")
+        debug_print(f"Connection established with {client_address}")
 
         # Receive the file name from the client
         file_name = client_socket.recv(BUFFER_SIZE).decode()
@@ -55,7 +55,7 @@ def request_file_from_peer(peer_ip: str, file_name: str):
     response = client_socket.recv(BUFFER_SIZE).decode()
 
     if response == "FILE_FOUND":
-        printfunc(f"Receiving file {file_name} from {peer_ip}...")
+        debug_print(f"Receiving file {file_name} from {peer_ip}...")
 
         with open(f"downloaded_{file_name}", "wb") as file:
             while True:
@@ -64,8 +64,8 @@ def request_file_from_peer(peer_ip: str, file_name: str):
                 if not data:
                     break
                 file.write(data)
-        printfunc(f"File {file_name} downloaded successfully.")
+        debug_print(f"File {file_name} downloaded successfully.")
     else:
-        printfunc(f"File {file_name} not found on {peer_ip}.")
+        debug_print(f"File {file_name} not found on {peer_ip}.")
 
     client_socket.close()

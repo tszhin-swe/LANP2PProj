@@ -15,8 +15,7 @@ from src.peer_discovery.discovery import (
     send_broadcast,
     listen_for_broadcast_and_handle_requests,
 )
-from src.common.debug_print import printfunc
-from src.common.global_thread_event import SingletonEvent
+from src.common.debug_print import debug_print
 
 
 class TestPeerDiscovery(unittest.TestCase):
@@ -64,7 +63,7 @@ class TestPeerDiscovery(unittest.TestCase):
         broadcaster_thread, listener_thread = self.run_peer(control_blk)
 
         # Check if at least one peer has been discovered
-        printfunc(f"Discovered peers: {control_blk.peer_list}")
+        debug_print(f"Discovered peers: {control_blk.peer_list}")
         self.assertGreater(len(control_blk.peer_list), 0, "No peers discovered!")
 
         self.threading_event.set()  # Signal threads to stop
@@ -72,11 +71,6 @@ class TestPeerDiscovery(unittest.TestCase):
         # Cleanup threads
         listener_thread.join(timeout=5)
         broadcaster_thread.join(timeout=5)
-
-    def tearDown(self):
-        """Clean up resources after each test run."""
-        # Any necessary cleanup, like closing sockets or stopping threads
-        printfunc("Cleaning up resources after test.")
 
 
 if __name__ == "__main__":

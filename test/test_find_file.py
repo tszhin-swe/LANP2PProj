@@ -12,13 +12,12 @@ sys.path.insert(
 )
 
 from src.common.control_block import ControlBlock
-from src.common.debug_print import printfunc
+from src.common.debug_print import debug_print
 from src.peer_discovery.discovery import (
     send_broadcast,
     listen_for_broadcast_and_handle_requests,
     search_for_file_within_peers,
 )
-from src.common.global_thread_event import SingletonEvent
 
 PORT = 50000
 
@@ -31,7 +30,7 @@ class TestFileFind(unittest.TestCase):
         self.threading_event.clear()  # Ensure the event is cleared before each test
 
     def server_thread_send_file(self, control_blk: ControlBlock):
-        printfunc(f"Server: {control_blk.file_list}")
+        debug_print(f"Server: {control_blk.file_list}")
         listen_for_broadcast_and_handle_requests(self.threading_event, control_blk)
 
     def client_thread_look_for_peer_with_file(
@@ -105,11 +104,6 @@ class TestFileFind(unittest.TestCase):
         # Cleanup threads
         broadcaster_thread.join(timeout=5)
         listener_thread.join(timeout=5)
-
-    def tearDown(self):
-        """Clean up resources after each test run."""
-        # Any necessary cleanup, like closing sockets or stopping threads
-        printfunc("Cleaning up resources after test.")
 
 
 if __name__ == "__main__":

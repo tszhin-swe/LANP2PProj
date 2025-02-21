@@ -9,7 +9,7 @@ from peer_discovery.discovery import (
     send_broadcast,
     search_for_file_within_peers,
 )
-from common.debug_print import printfunc
+from common.debug_print import debug_print
 
 
 def handle_user_input(control_blk: ControlBlock) -> None:
@@ -23,11 +23,11 @@ def handle_user_input(control_blk: ControlBlock) -> None:
         )
 
         if command == "help":
-            printfunc("Available commands:")
-            printfunc("  - help: Display this help message.")
-            printfunc("  - upload: Upload a file.")
-            printfunc("  - download: Download a file from a peer.")
-            printfunc("  - exit: Exit the program.")
+            debug_print("Available commands:")
+            debug_print("  - help: Display this help message.")
+            debug_print("  - upload: Upload a file.")
+            debug_print("  - download: Download a file from a peer.")
+            debug_print("  - exit: Exit the program.")
 
         elif command == "upload":
             filename = input("Enter the absolute path of the file you want to upload: ")
@@ -37,23 +37,23 @@ def handle_user_input(control_blk: ControlBlock) -> None:
             filename = input("Enter the name of the file you want to download: ")
             peers = search_for_file_within_peers(control_blk, filename)
             if not peers:
-                printfunc(f"File '{filename}' not found within peers currently.")
+                debug_print(f"File '{filename}' not found within peers currently.")
             else:
                 # TODO
-                printfunc("peer found.")
+                debug_print("peer found.")
 
         elif command == "exit":
-            printfunc("Exiting the program.")
+            debug_print("Exiting the program.")
             break
 
         elif command == "debug":
-            printfunc("Debugging Information:")
-            printfunc(f"Peer List: {control_blk.peer_list}")
-            printfunc(f"Peer to File Mapping: {control_blk.peer_to_file}")
-            printfunc(f"Local File List: {control_blk.file_list}")
+            debug_print("Debugging Information:")
+            debug_print(f"Peer List: {control_blk.peer_list}")
+            debug_print(f"Peer to File Mapping: {control_blk.peer_to_file}")
+            debug_print(f"Local File List: {control_blk.file_list}")
 
         else:
-            printfunc(
+            debug_print(
                 f"Unknown command: '{command}'. Type 'help' for a list of commands."
             )
 
@@ -63,7 +63,6 @@ def main():
     control_blk = ControlBlock()
     thread_var = threading.Event()
 
-    # Start the peer discovery thread
     peer_discovery_thread = threading.Thread(
         target=listen_for_broadcast_and_handle_requests,
         args=(
@@ -80,9 +79,6 @@ def main():
 
     # Main thread handles user input
     handle_user_input(control_blk)
-
-    # Wait for any remaining background tasks to complete (if needed)
-    # In this case, the peer discovery thread is a daemon, so it will exit when the main thread exits
 
 
 if __name__ == "__main__":
