@@ -39,7 +39,7 @@ def get_local_ip():
 """Broadcasts a message periodically to all devices in the local network."""
 
 
-def send_broadcast(threading_event: threading.Event = None):
+def send_broadcast(threading_event: threading.Event):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
     # Enable broadcasting
@@ -52,10 +52,9 @@ def send_broadcast(threading_event: threading.Event = None):
     try:
         while not threading_event.is_set():
             event = SingletonEvent()
-            printfunc(hex(id(event)))
             # Send the message to the broadcast address and specified port
             sock.sendto(MESSAGE, (BROADCAST_IP, BROADCAST_PORT))
-            printfunc("Broadcasting message...")
+            # DEBUGPRINT VERBOSE  printfunc("Broadcasting message...")
             time.sleep(5)  # Broadcast every 5 seconds
     finally:
         print("Finishing broadcasting...")
@@ -88,7 +87,7 @@ def listen_for_broadcast_and_handle_requests(
 
             try:
                 data, addr = sock.recvfrom(BUFFER_SIZE)
-                printfunc(f"Received message: {data.decode()} from {addr}")
+                # DEBUGPRINT VERBOSE printfunc(f"Received message: {data.decode()} from {addr}")
 
                 # Handle peer discovery
                 if addr[0] != local_ip and addr not in control_blk.peer_list:
@@ -97,6 +96,7 @@ def listen_for_broadcast_and_handle_requests(
 
                 # Handle file request
                 if data.decode().startswith(FILE_REQUEST_MESSAGE.decode()):
+                    printfunc(f"Received message: {data.decode()} from {addr}")
                     requested_file = data.decode()[
                         len(FILE_REQUEST_MESSAGE.decode()) :
                     ].strip()
@@ -127,7 +127,7 @@ def listen_for_broadcast_and_handle_requests(
 """Request a file from a peer and return whether the file is available."""
 
 
-def request_file_from_peer(peer_address: tuple, filename: str) -> bool:
+def search_file_from_peer(peer_address: tuple, filename: str) -> bool:
     # Create a UDP socket to send the request
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -137,7 +137,7 @@ def request_file_from_peer(peer_address: tuple, filename: str) -> bool:
 
         # Send the request to the peer's address
         sock.sendto(request_message, peer_address)
-        printfunc(f"Sent file request for '{filename}' to {peer_address}")
+        printfunc(f"Check if '{filename}' is in {peer_address}")
 
         # Set a timeout to receive the response (in case the file is not available)
         sock.settimeout(5)  # Wait for 5 seconds for a response
@@ -161,6 +161,7 @@ def request_file_from_peer(peer_address: tuple, filename: str) -> bool:
 
 def search_for_file_within_peers(cb: ControlBlock, filename: str) -> List[tuple]:
     for peer in cb.peer_list:
-        if request_file_from_peer(peer, filename):
+        addr = (peer[0], BROADCAST_PORT)
+        if search_file_from_peer(addr, filename):
             return [peer]
     return []
