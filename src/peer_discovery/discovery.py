@@ -43,6 +43,7 @@ def get_local_ip():
 
 """Broadcasts a message periodically to all devices in the local network with UDP."""
 
+
 def send_broadcast(threading_event: threading.Event):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
@@ -82,7 +83,10 @@ def handle_file_request(control_blk, sock, data, addr):
         sock.sendto(response, addr)
         debug_print(f"Sent file not available response to {addr}")
 
-def listen_for_broadcast_and_handle_requests(threading_event: threading.Event, control_blk: ControlBlock):
+
+def listen_for_broadcast_and_handle_requests(
+    threading_event: threading.Event, control_blk: ControlBlock
+):
     broadcast_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     broadcast_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     broadcast_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
@@ -93,11 +97,15 @@ def listen_for_broadcast_and_handle_requests(threading_event: threading.Event, c
     file_request_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     file_request_sock.bind(("0.0.0.0", MY_FILE_REQUEST_PORT))
 
-    debug_print(f"Listening on {BROADCAST_PORT} for broadcasts and {MY_FILE_REQUEST_PORT} for file requests.")
+    debug_print(
+        f"Listening on {BROADCAST_PORT} for broadcasts and {MY_FILE_REQUEST_PORT} for file requests."
+    )
 
     try:
         while not threading_event.is_set():
-            ready_sockets, _, _ = select.select([broadcast_sock, file_request_sock], [], [], 5)
+            ready_sockets, _, _ = select.select(
+                [broadcast_sock, file_request_sock], [], [], 5
+            )
 
             for sock in ready_sockets:
                 data, addr = sock.recvfrom(BUFFER_SIZE)
@@ -106,12 +114,14 @@ def listen_for_broadcast_and_handle_requests(threading_event: threading.Event, c
                     message = data.decode().strip().split()
                     if len(message) == 2 and message[0] == "HELLO_PEER":
                         peer_ip, peer_port = addr[0], int(message[1])
-                        
+
                         # Avoid adding self to the peer list
                         if (peer_ip, peer_port) not in control_blk.peer_list:
-                            debug_print(f"Adding peer {peer_ip} with file request port {peer_port}")
+                            debug_print(
+                                f"Adding peer {peer_ip} with file request port {peer_port}"
+                            )
                             control_blk.peer_list.append((peer_ip, peer_port))
-                
+
                 elif sock == file_request_sock:
                     if data.decode().startswith(FILE_REQUEST_MESSAGE.decode()):
                         handle_file_request(control_blk, file_request_sock, data, addr)
@@ -119,6 +129,8 @@ def listen_for_broadcast_and_handle_requests(threading_event: threading.Event, c
     finally:
         close_socket(broadcast_sock)
         close_socket(file_request_sock)
+
+
 """Request a file from a peer and return whether the file is available."""
 
 
@@ -156,7 +168,7 @@ def search_file_from_peer(peer_address: tuple, filename: str) -> bool:
 
 
 def search_for_file_within_peers(cb: ControlBlock, filename: str) -> List[tuple]:
-    peer_list = cb.peer_list.copy() # TODO: Fix this
+    peer_list = cb.peer_list.copy()  # TODO: Fix this
     for peer in peer_list:
         addr = (peer[0], BROADCAST_PORT)
         if search_file_from_peer(peer, filename):

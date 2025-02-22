@@ -21,6 +21,7 @@ from src.peer_discovery.discovery import (
 
 MY_FILE_REQUEST_PORT = 50001 + (os.getpid() % 10)
 
+
 class TestFileFind(unittest.TestCase):
 
     def setUp(self):

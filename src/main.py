@@ -9,7 +9,12 @@ from peer_discovery.discovery import (
     send_broadcast,
     search_for_file_within_peers,
 )
-from common.debug_print import debug_print, regular_print, debug_print_on, debug_print_off
+from common.debug_print import (
+    debug_print,
+    regular_print,
+    debug_print_on,
+    debug_print_off,
+)
 
 
 def handle_user_input(control_blk: ControlBlock) -> None:
