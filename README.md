@@ -21,4 +21,4 @@ To run the peer discovery test, execute the following command from the root dire
 python -m unittest discover -s test
 ```
 
-![demogif](https://github.com/user-attachments/assets/e3e7b36f-2e1f-4738-99c7-99dc25a1154d)
+![ezgif-48500bef2e25a4](https://github.com/user-attachments/assets/cfb9a0d5-c5a1-42fc-a311-48c4fd26fd4c)
