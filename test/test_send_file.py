@@ -12,7 +12,7 @@ sys.path.insert(
 )
 
 from src.common.control_block import ControlBlock
-from src.common.debug_print import debug_print
+from src.common.debug_print import debug_print, regular_print
 from src.peer_discovery.discovery import (
     send_broadcast,
     listen_for_broadcast_and_handle_requests,
@@ -20,7 +20,7 @@ from src.peer_discovery.discovery import (
 )
 from src.file_share.send_recv_tcp import start_file_server, receive_file_from_peer
 
-PORT = 50000
+MY_FILE_REQUEST_PORT = 50001 + (os.getpid() % 10)
 
 
 class TestSendFile(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestSendFile(unittest.TestCase):
     def test_send_file_success(self):
         """Test file finding between peers using threads."""
         client_control_block = ControlBlock()
-        server_addr = ("10.0.0.103", PORT)
+        server_addr = ("10.0.0.103", MY_FILE_REQUEST_PORT)
         server_control_block = ControlBlock()
         server_control_block.file_list = ["test/test.txt"]
         """Simulate a peer broadcasting and listening for discovery."""

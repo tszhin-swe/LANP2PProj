@@ -1,6 +1,6 @@
 import socket
 import os
-from common.debug_print import debug_print
+from common.debug_print import debug_print, regular_print
 from common.control_block import ControlBlock
 
 FILE_PORT = 60000  # Port for file transfer
@@ -14,7 +14,6 @@ def verify_file_checksum(file_name: str):
 
 
 def send_file(cb: ControlBlock, client_socket: socket.socket, file_name: str):
-    print(f"file exist{os.path.exists(file_name)}")
     # Check if the file exists and can be sent
     file_name_path = cb.get_file_path(file_name)
     if os.path.exists(file_name_path):

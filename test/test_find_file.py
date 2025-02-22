@@ -12,15 +12,14 @@ sys.path.insert(
 )
 
 from src.common.control_block import ControlBlock
-from src.common.debug_print import debug_print
+from src.common.debug_print import debug_print, regular_print
 from src.peer_discovery.discovery import (
     send_broadcast,
     listen_for_broadcast_and_handle_requests,
     search_for_file_within_peers,
 )
 
-PORT = 50000
-
+MY_FILE_REQUEST_PORT = 50001 + (os.getpid() % 10)
 
 class TestFileFind(unittest.TestCase):
 
@@ -41,7 +40,7 @@ class TestFileFind(unittest.TestCase):
 
     def test_find_nonexistent_file(self):
         client_control_block = ControlBlock()
-        client_control_block.peer_list = [("10.0.0.103", PORT)]
+        client_control_block.peer_list = [("10.0.0.103", MY_FILE_REQUEST_PORT)]
         server_control_block = ControlBlock()
         """Simulate a peer broadcasting and listening for discovery."""
         broadcaster_thread = threading.Thread(
@@ -74,7 +73,7 @@ class TestFileFind(unittest.TestCase):
     def test_file_find(self):
         """Test file finding between peers using threads."""
         client_control_block = ControlBlock()
-        client_control_block.peer_list = [("10.0.0.103", PORT)]
+        client_control_block.peer_list = [("10.0.0.103", MY_FILE_REQUEST_PORT)]
         server_control_block = ControlBlock()
         server_control_block.file_list = ["test_file.txt"]
         """Simulate a peer broadcasting and listening for discovery."""

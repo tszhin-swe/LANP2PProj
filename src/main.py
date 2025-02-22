@@ -9,7 +9,7 @@ from peer_discovery.discovery import (
     send_broadcast,
     search_for_file_within_peers,
 )
-from common.debug_print import debug_print
+from common.debug_print import debug_print, regular_print, debug_print_on, debug_print_off
 
 
 def handle_user_input(control_blk: ControlBlock) -> None:
@@ -23,11 +23,11 @@ def handle_user_input(control_blk: ControlBlock) -> None:
         )
 
         if command == "help":
-            debug_print("Available commands:")
-            debug_print("  - help: Display this help message.")
-            debug_print("  - upload: Upload a file.")
-            debug_print("  - download: Download a file from a peer.")
-            debug_print("  - exit: Exit the program.")
+            regular_print("Available commands:")
+            regular_print("  - help: Display this help message.")
+            regular_print("  - upload: Upload a file.")
+            regular_print("  - download: Download a file from a peer.")
+            regular_print("  - exit: Exit the program.")
 
         elif command == "upload":
             filename = input("Enter the absolute path of the file you want to upload: ")
@@ -37,23 +37,27 @@ def handle_user_input(control_blk: ControlBlock) -> None:
             filename = input("Enter the name of the file you want to download: ")
             peers = search_for_file_within_peers(control_blk, filename)
             if not peers:
-                debug_print(f"File '{filename}' not found within peers currently.")
+                regular_print(f"File '{filename}' not found within peers currently.")
             else:
                 # TODO
-                debug_print("peer found.")
+                regular_print("peer found.")
 
         elif command == "exit":
-            debug_print("Exiting the program.")
+            regular_print("Exiting the program.")
             break
 
         elif command == "debug":
-            debug_print("Debugging Information:")
-            debug_print(f"Peer List: {control_blk.peer_list}")
-            debug_print(f"Peer to File Mapping: {control_blk.peer_to_file}")
-            debug_print(f"Local File List: {control_blk.file_list}")
+            regular_print("Debugging Information:")
+            regular_print(f"Peer List: {control_blk.peer_list}")
+            regular_print(f"Peer to File Mapping: {control_blk.peer_to_file}")
+            regular_print(f"Local File List: {control_blk.file_list}")
+        elif command == "debugprinton":
+            debug_print_on()
+        elif command == "debugprintoff":
+            debug_print_off()
 
         else:
-            debug_print(
+            regular_print(
                 f"Unknown command: '{command}'. Type 'help' for a list of commands."
             )
 

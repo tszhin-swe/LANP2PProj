@@ -15,7 +15,7 @@ from src.peer_discovery.discovery import (
     send_broadcast,
     listen_for_broadcast_and_handle_requests,
 )
-from src.common.debug_print import debug_print
+from src.common.debug_print import debug_print, regular_print
 
 
 class TestPeerDiscovery(unittest.TestCase):
