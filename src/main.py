@@ -3,7 +3,7 @@ import threading
 from common.control_block import ControlBlock
 from file_share.upload import upload_file
 
-# from file_share.send_recv_tcp import search_file_from_peer
+from file_share.send_recv_tcp import receive_file_from_peer, start_file_server
 from peer_discovery.discovery import (
     listen_for_broadcast_and_handle_requests,
     send_broadcast,
@@ -44,8 +44,7 @@ def handle_user_input(control_blk: ControlBlock) -> None:
             if not peers:
                 regular_print(f"File '{filename}' not found within peers currently.")
             else:
-                # TODO
-                regular_print("peer found.")
+                receive_file_from_peer(peers[0], filename)
 
         elif command == "exit":
             regular_print("Exiting the program.")
@@ -71,6 +70,10 @@ def main():
     # Create the ControlBlock instance
     control_blk = ControlBlock()
     thread_var = threading.Event()
+
+    server_thread = threading.Thread(target=start_file_server, args=(control_blk,))
+    server_thread.daemon = True
+    server_thread.start()
 
     peer_discovery_thread = threading.Thread(
         target=listen_for_broadcast_and_handle_requests,

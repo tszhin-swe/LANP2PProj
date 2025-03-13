@@ -14,6 +14,7 @@ FILE_REQUEST_MESSAGE = b"REQUEST_FILE"
 
 """Listen for UDP broadcasts and handle file requests on a specific port."""
 MY_FILE_REQUEST_PORT = 50001 + (os.getpid() % 10)  # Each process gets a unique port
+MY_SERVER_PORT = MY_FILE_REQUEST_PORT + 10000
 
 
 def close_socket(sock):
