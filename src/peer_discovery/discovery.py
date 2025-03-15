@@ -77,6 +77,7 @@ def handle_file_request(control_blk, sock, data, addr):
         # Respond with FILE_AVAILABLE if the file exists
         response = b"FILE_AVAILABLE"
         sock.sendto(response, addr)
+        sock.sendto(control_blk.get_file_size(requested_file).to_bytes(4, "big"), addr)
         debug_print(f"Sent file availability response to {addr}")
     else:
         # Respond with a message indicating the file is not available
@@ -155,8 +156,12 @@ def search_file_from_peer(peer_address: tuple, filename: str) -> bool:
             # Wait for the peer's response (whether file is available or not)
             data, _ = sock.recvfrom(BUFFER_SIZE)
             if data.decode() == "FILE_AVAILABLE":
-                debug_print(f"File '{filename}' is available from {peer_address}.")
-                return True
+                size, _ = sock.recvfrom(4)
+                size = int.from_bytes(size, "big")
+                print(
+                    f"File '{filename}' is available from {peer_address}. Size: {size} bytes"
+                )
+                return size
             else:
                 debug_print(f"Peer {peer_address} responded with no file.")
                 return False
@@ -170,9 +175,10 @@ def search_file_from_peer(peer_address: tuple, filename: str) -> bool:
 
 def search_for_file_within_peers(cb: ControlBlock, filename: str) -> List[tuple]:
     peer_list = cb.peer_list.copy()  # TODO: Fix this
+    peers_with_file = []
     for peer in peer_list:
         addr = (peer[0], BROADCAST_PORT)
-        if search_file_from_peer(peer, filename):
-            return [peer]
+        if size := search_file_from_peer(peer, filename):
+            peers_with_file.append((peer, size))
     cb.peer_list = peer_list
-    return []
+    return peers_with_file

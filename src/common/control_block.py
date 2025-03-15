@@ -1,4 +1,5 @@
 from typing import List, Dict
+import os
 
 
 class ControlBlock:
@@ -15,6 +16,12 @@ class ControlBlock:
         self.peer_list: List[str] = []
         self.peer_to_file: Dict[str, List[str]] = {}
         self.file_list: List[str] = []
+
+    def get_file_size(self, filename: str) -> int:
+        for file in self.file_list:
+            if file.split("/")[-1] == filename and os.path.exists(file):
+                return os.path.getsize(file)
+        return 0
 
     def check_file_available(self, filename: str) -> bool:
         for file in self.file_list:

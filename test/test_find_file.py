@@ -76,7 +76,9 @@ class TestFileFind(unittest.TestCase):
         client_control_block = ControlBlock()
         client_control_block.peer_list = [("10.0.0.103", MY_FILE_REQUEST_PORT)]
         server_control_block = ControlBlock()
-        server_control_block.file_list = ["test_file.txt"]
+        server_control_block.file_list = [
+            "/Users/chankeith/Desktop/coursework/Sp25/Networking/proj_iter_1/test/test.txt"
+        ]
         """Simulate a peer broadcasting and listening for discovery."""
         broadcaster_thread = threading.Thread(
             target=self.server_thread_send_file, args=(server_control_block,)
@@ -87,13 +89,12 @@ class TestFileFind(unittest.TestCase):
         # Give broadcaster a moment to start
         time.sleep(1)
 
-        # Client thread should not find anything.
         assertFileExist = lambda peers_with_file: self.assertEqual(
             len(peers_with_file), 1
         )
         listener_thread = threading.Thread(
             target=self.client_thread_look_for_peer_with_file,
-            args=(client_control_block, "test_file.txt", assertFileExist),
+            args=(client_control_block, "test.txt", assertFileExist),
         )
         listener_thread.daemon = True  # Allow thread to exit when main program exits
         listener_thread.start()
